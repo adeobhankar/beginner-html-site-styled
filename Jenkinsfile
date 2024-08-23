@@ -1,45 +1,32 @@
 pipeline {
-    agent {label 'slave2'}
-
+    agent any
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 script {
-                    echo 'Building Docker image...'
-                    sh 'docker build -t my-website-image .'
+                    def app = docker.build("<your-dockerhub-username>/website")
                 }
             }
         }
-        stage('Stop and Remove Existing Container') {
+        stage('Push') {
             steps {
                 script {
-                    echo 'Stopping and removing existing container...'
-                    sh '''
-                    if [ "$(docker ps -q -f name=my-website-container)" ]; then
-                        docker stop my-website-container
-                    fi
-                    if [ "$(docker ps -a -q -f name=my-website-container)" ]; then
-                        docker rm my-website-container
-                    fi
-                    '''
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        app.push('latest')
+                    }
                 }
             }
         }
-        stage('Deploy New Container') {
+        stage('Deploy') {
             steps {
                 script {
-                    echo 'Deploying new container...'
-                    sh 'docker run -d --name my-website-container -p 100:80 my-website-image'
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f service.yaml'
                 }
             }
         }
-        stage('Validate Deployment') {
-            steps {
-                script {
-                    echo 'Validating deployment...'
-                    sh 'curl -I http://localhost:99'
-                }
-            }
-        }
+    }
+    triggers {
+        githubPush()
     }
 }
