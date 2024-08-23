@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' 
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
     
     stages {
@@ -21,7 +21,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
                         sudo docker push adeobhankar/website:latest
                         '''
                     }
