@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     // Ensure kubectl is in PATH and KUBECONFIG is set
-                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f deployment.yml'
                 }
             }
         }
