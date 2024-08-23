@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
         KUBERNETES_CREDENTIALS_ID = 'kubernetes-credentials-id'
         KUBECONFIG = '/path/to/jenkins/kubeconfig' // Ensure the path is correct
     }
