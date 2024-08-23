@@ -15,8 +15,8 @@ pipeline {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
                 sh '''
-                docker login -u "adeobhankar" -p "Discover1@"
-                docker push myusername/website:latest
+                sudo docker login -u "adeobhankar" -p "Discover1@"
+                sudo docker push adeobhankar/website:latest
                 '''
             }
         }
