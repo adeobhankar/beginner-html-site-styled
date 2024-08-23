@@ -1,12 +1,16 @@
 pipeline {
     agent any
     
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+    }
+    
     stages {
         stage('Build') {
             steps {
                 echo 'Building Docker image...'
                 sh '''
-                sudo docker build -t adeobhankar/website:latest .
+                docker build -t adeobhankar/website:latest .
                 '''
             }
         }
@@ -14,10 +18,14 @@ pipeline {
         stage('Push') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                sh '''
-                sudo docker login -u "adeobhankar" -p "Discover1@"
-                sudo docker push adeobhankar/website:latest
-                '''
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push adeobhankar/website:latest
+                        '''
+                    }
+                }
             }
         }
         
