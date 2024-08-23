@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo 'Deploying to Kubernetes...'
                 sh '''
-                kubectl apply -f kubernetes/deployment.yaml
+                kubectl apply -f deployment.yaml
                 '''
             }
         }
