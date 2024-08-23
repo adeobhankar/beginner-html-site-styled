@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def app = docker.build("<your-dockerhub-username>/website")
+                    def app = docker.build("adeobhankar/website")
                 }
             }
         }
