@@ -1,11 +1,7 @@
 pipeline {
     agent any
+
     stages {
-        stage('Checkout SCM') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 script {
@@ -17,9 +13,12 @@ pipeline {
         stage('Stop and Remove Existing Container') {
             steps {
                 script {
+                    echo 'Stopping and removing existing container...'
                     sh '''
                     if [ "$(docker ps -q -f name=my-website-container)" ]; then
                         docker stop my-website-container
+                    fi
+                    if [ "$(docker ps -a -q -f name=my-website-container)" ]; then
                         docker rm my-website-container
                     fi
                     '''
@@ -29,14 +28,16 @@ pipeline {
         stage('Deploy New Container') {
             steps {
                 script {
-                    sh 'docker run -d -p 99:80 --name my-website-container my-website-image'
+                    echo 'Deploying new container...'
+                    sh 'docker run -d --name my-website-container -p 99:80 my-website-image'
                 }
             }
         }
         stage('Validate Deployment') {
             steps {
                 script {
-                    sh 'curl -I localhost:99'
+                    echo 'Validating deployment...'
+                    sh 'curl -I http://localhost:99'
                 }
             }
         }
