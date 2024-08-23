@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
-        KUBECONFIG = kubeconfig' // Ensure the path is correct
+        KUBECONFIG = 'kubeconfig' // Ensure the path is correct
     }
 
     stages {
