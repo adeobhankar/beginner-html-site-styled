@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-        KUBERNETES_CREDENTIALS_ID = 'kubernetes-credentials-id'
-        KUBECONFIG = '/home/ubuntu/jenkins/kubeconfig' // Ensure the path is correct
+        DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
+        KUBECONFIG = kubeconfig' // Ensure the path is correct
     }
 
     stages {
@@ -22,9 +21,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: KUBERNETES_CREDENTIALS_ID]) {
-                        sh 'kubectl apply -f deployment.yaml'
-                    }
+                    // Ensure kubectl is in PATH and KUBECONFIG is set
+                    sh 'kubectl apply -f deployment.yaml'
                 }
             }
         }
