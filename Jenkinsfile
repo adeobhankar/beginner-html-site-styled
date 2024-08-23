@@ -1,48 +1,31 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
+        KUBERNETES_CREDENTIALS_ID = 'kubernetes-credentials-id'
+        KUBECONFIG = '/path/to/jenkins/kubeconfig' // Ensure the path is correct
     }
-    
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building Docker image...'
-                sh '''
-                docker build -t adeobhankar/website:latest .
-                '''
-            }
-        }
-        
-        stage('Push') {
-            steps {
-                echo 'Pushing Docker image to Docker Hub...'
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                        docker push adeobhankar/website:latest
-                        '''
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        sh 'docker build -t adeobhankar/website:latest .'
+                        sh 'docker push adeobhankar/website:latest'
                     }
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                echo 'Deploying to Kubernetes...'
-               sh 'kubectl create -f deployment.yml'
-               sh 'kubectl create -f service.yml' 
-            }
-        }
-        
-        stage('Verify') {
-            steps {
-                echo 'Verifying the deployment...'
-                sh '''
-                kubectl rollout status deployment/my-app
-                '''
+                script {
+                    withKubeConfig([credentialsId: KUBERNETES_CREDENTIALS_ID]) {
+                        sh 'kubectl apply -f deployment.yaml'
+                    }
+                }
             }
         }
     }
