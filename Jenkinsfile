@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
         KUBERNETES_CREDENTIALS_ID = 'kubernetes-credentials-id'
-        KUBECONFIG = '/path/to/jenkins/kubeconfig' // Ensure the path is correct
+        KUBECONFIG = '/home/ubuntu/jenkins/kubeconfig' // Ensure the path is correct
     }
 
     stages {
