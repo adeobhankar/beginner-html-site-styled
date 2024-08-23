@@ -1,32 +1,50 @@
 pipeline {
     agent any
+    
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' 
+    }
+    
     stages {
         stage('Build') {
             steps {
-                script {
-                    def app = docker.build("adeobhankar/website")
-                }
+                echo 'Building Docker image...'
+                sh '''
+                sudo docker build -t adeobhankar/website:latest .
+                '''
             }
         }
+        
         stage('Push') {
             steps {
+                echo 'Pushing Docker image to Docker Hub...'
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        app.push('latest')
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        sudo docker push adeobhankar/website:latest
+                        '''
                     }
                 }
             }
         }
+        
         stage('Deploy') {
             steps {
-                script {
-                    sh 'kubectl apply -f deployment.yaml'
-                    sh 'kubectl apply -f service.yaml'
-                }
+                echo 'Deploying to Kubernetes...'
+                sh '''
+                kubectl apply -f kubernetes/deployment.yaml
+                '''
             }
         }
-    }
-    triggers {
-        githubPush()
+        
+        stage('Verify') {
+            steps {
+                echo 'Verifying the deployment...'
+                sh '''
+                kubectl rollout status deployment/my-app
+                '''
+            }
+        }
     }
 }
