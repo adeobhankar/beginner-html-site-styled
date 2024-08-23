@@ -1,10 +1,6 @@
 pipeline {
     agent any
     
-    environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-    }
-    
     stages {
         stage('Build') {
             steps {
@@ -18,14 +14,10 @@ pipeline {
         stage('Push') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh '''
-                        echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
-                         docker push adeobhankar/website:latest
-                        '''
-                    }
-                }
+                sh '''
+                docker login -u "adeobhankar" -p "Discover1@"
+                docker push myusername/website:latest
+                '''
             }
         }
         
